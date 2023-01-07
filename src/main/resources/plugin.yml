@@ -1,0 +1,12 @@
+name: CreeperLogger
+author: KermitEatsCats
+version: '${project.version}'
+main: dev.gerardoj.creeperlogger.Main
+api-version: 1.19
+description: A plugin that logs creeper spawn egg placement
+commands:
+  creeperlog:
+    description: CreeperLogger commands. Clear the logs or lookup a page of logs.
+    permission: creeperlogger.admin
+    usage: /creeperlog clear | <page>
+    aliases: [cl]
