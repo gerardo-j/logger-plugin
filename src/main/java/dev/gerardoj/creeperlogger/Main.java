@@ -1,26 +1,24 @@
 package dev.gerardoj.creeperlogger;
 
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import dev.gerardoj.creeperlogger.commands.CreeperLogCommand;
 import dev.gerardoj.creeperlogger.entities.CreepersLog;
 import dev.gerardoj.creeperlogger.entities.Players;
-import dev.gerardoj.creeperlogger.utils.PluginCommand;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
+import dev.gerardoj.creeperlogger.listeners.PlaceCreeperEgg;
+import dev.gerardoj.creeperlogger.listeners.PlayerJoin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.reflections.Reflections;
-
-import java.lang.reflect.InvocationTargetException;
 
 public final class Main extends JavaPlugin {
-    private ConnectionSource connectionSource;
+    ConnectionSource connectionSource;
+    Dao<CreepersLog, String> creepersLogDao;
+    Dao<Players, String> playersDao;
 
     @Override
     public void onEnable() {
-
-        // Plugin startup logic
-        String packageName = this.getClass().getPackage().getName();
 
         try {
             // this uses sqlite, but you can change it to match your database
@@ -35,47 +33,21 @@ public final class Main extends JavaPlugin {
             TableUtils.createTableIfNotExists(connectionSource, Players.class);
             TableUtils.createTableIfNotExists(connectionSource, CreepersLog.class);
 
+            // create DAOs
+            creepersLogDao = DaoManager.createDao(connectionSource, CreepersLog.class);
+            playersDao = DaoManager.createDao(connectionSource, Players.class);
+
             getLogger().info("Connection established.");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        for (Class<?> clazz: new Reflections(packageName + ".listeners").getSubTypesOf(Listener.class)) {
-            Listener listener = null;
-            try {
-                listener = (Listener) clazz.getDeclaredConstructor(Plugin.class, ConnectionSource.class).newInstance(this, connectionSource);
-            } catch (NoSuchMethodException e) {
-                try {
-                    listener = (Listener) clazz.getDeclaredConstructor().newInstance();
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
-            assert listener != null;
-            getServer().getPluginManager().registerEvents(listener, this);
-        }
+        // register listeners
+        getServer().getPluginManager().registerEvents(new PlaceCreeperEgg(this, creepersLogDao), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoin(playersDao), this);
 
-        for (Class<? extends PluginCommand> clazz : new Reflections(packageName + ".commands").getSubTypesOf(PluginCommand.class)) {
-            PluginCommand command = null;
-            try {
-                command = clazz.getDeclaredConstructor(ConnectionSource.class).newInstance(connectionSource);
-            } catch (NoSuchMethodException e) {
-                try {
-                    command = clazz.getDeclaredConstructor().newInstance();
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
-                    ex.printStackTrace();
-                }
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
-            assert command != null;
-            getCommand(command.getCommandInfo().name()).setExecutor(command);
-
-
-        }
+        // register commands
+        getCommand("creeperlog").setExecutor(new CreeperLogCommand(creepersLogDao));
     }
 
     @Override

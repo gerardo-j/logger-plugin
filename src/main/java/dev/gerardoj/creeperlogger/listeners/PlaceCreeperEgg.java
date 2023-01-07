@@ -1,8 +1,6 @@
 package dev.gerardoj.creeperlogger.listeners;
 
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.support.ConnectionSource;
 import dev.gerardoj.creeperlogger.entities.CreepersLog;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,13 +20,13 @@ public class PlaceCreeperEgg implements Listener {
     static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
     boolean playerPlacedCreeper = false;
     String timestamp;
-    Dao<CreepersLog, String> creepersPlacedDao;
+    Dao<CreepersLog, String> creepersLogDao;
     Player player;
     Plugin plugin;
 
-    public PlaceCreeperEgg(Plugin plugin, ConnectionSource connectionSource) throws Exception {
+    public PlaceCreeperEgg(Plugin plugin, Dao<CreepersLog, String> creepersLogDao) {
         this.plugin = plugin;
-        creepersPlacedDao = DaoManager.createDao(connectionSource, CreepersLog.class);
+        this.creepersLogDao = creepersLogDao;
     }
 
     @EventHandler
@@ -48,7 +46,7 @@ public class PlaceCreeperEgg implements Listener {
         CreepersLog creepersLog = new CreepersLog(timestamp, player.getName(), player.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ());
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                creepersPlacedDao.create(creepersLog);
+                creepersLogDao.create(creepersLog);
             } catch (Exception e) {
                 player.sendMessage(ChatColor.RED + "Error: " + e.getMessage());
                 e.printStackTrace();
