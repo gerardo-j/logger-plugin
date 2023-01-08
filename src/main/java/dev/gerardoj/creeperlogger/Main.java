@@ -12,6 +12,8 @@ import dev.gerardoj.creeperlogger.listeners.PlaceCreeperEgg;
 import dev.gerardoj.creeperlogger.listeners.PlayerJoin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.SQLException;
+
 public final class Main extends JavaPlugin {
     ConnectionSource connectionSource;
     Dao<CreepersLog, String> creepersLogDao;
@@ -38,7 +40,7 @@ public final class Main extends JavaPlugin {
             playersDao = DaoManager.createDao(connectionSource, Players.class);
 
             getLogger().info("Connection established.");
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 

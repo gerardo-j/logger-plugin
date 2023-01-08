@@ -40,36 +40,36 @@ public class CreeperLogCommand extends PluginCommand {
                 sender.sendMessage(ChatColor.RED + "Error clearing creeper info");
             }
             return;
-        } else {
-            try {
-                totalRows = creepsLogDao.countOf();
-                totalPages = (totalRows + LIMIT - 1) / LIMIT; // Round up to the nearest whole number
+        }
 
-                page = Integer.parseInt(arg);
-                if (page < 1 || page > totalPages) {
-                    sender.sendMessage(ChatColor.RED + "Invalid page number");
-                    return;
-                }
+        try {
+            totalRows = creepsLogDao.countOf();
+            totalPages = (totalRows + LIMIT - 1) / LIMIT; // Round up to the nearest whole number
 
-                List<CreepersLog> creepersLogs = creepsLogDao.queryBuilder().offset((page * LIMIT) - LIMIT).limit(LIMIT).query();
-                sender.sendMessage(ChatColor.YELLOW + "" + ChatColor.STRIKETHROUGH + "========================================");
-                for (CreepersLog creepersLog : creepersLogs) {
-                    sender.sendMessage(
-                            ChatColor.GOLD + "SpawnAt: " + ChatColor.GRAY + creepersLog.getCreatedAt() +
-                            ChatColor.GOLD + " username: " + ChatColor.GRAY + creepersLog.getUsername() + " \n" +
-                            ChatColor.GOLD + "world: " + ChatColor.GRAY + creepersLog.getWorld() +
-                            ChatColor.GOLD + " x: " + ChatColor.GRAY + creepersLog.getX() +
-                            ChatColor.GOLD + " y: " + ChatColor.GRAY + creepersLog.getY() +
-                            ChatColor.GOLD + " z: " + ChatColor.GRAY + creepersLog.getZ());
-                }
-
-            } catch (NumberFormatException et) {
+            page = Integer.parseInt(arg);
+            if (page < 1 || page > totalPages) {
                 sender.sendMessage(ChatColor.RED + "Invalid page number");
                 return;
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return;
             }
+
+            List<CreepersLog> creepersLogs = creepsLogDao.queryBuilder().offset((page * LIMIT) - LIMIT).limit(LIMIT).query();
+            sender.sendMessage(ChatColor.YELLOW + "" + ChatColor.STRIKETHROUGH + "========================================");
+            for (CreepersLog creepersLog : creepersLogs) {
+                sender.sendMessage(
+                        ChatColor.GOLD + "SpawnAt: " + ChatColor.GRAY + creepersLog.getCreatedAt() +
+                        ChatColor.GOLD + " username: " + ChatColor.GRAY + creepersLog.getUsername() + " \n" +
+                        ChatColor.GOLD + "world: " + ChatColor.GRAY + creepersLog.getWorld() +
+                        ChatColor.GOLD + " x: " + ChatColor.GRAY + creepersLog.getX() +
+                        ChatColor.GOLD + " y: " + ChatColor.GRAY + creepersLog.getY() +
+                        ChatColor.GOLD + " z: " + ChatColor.GRAY + creepersLog.getZ());
+            }
+
+        } catch (NumberFormatException et) {
+            sender.sendMessage(ChatColor.RED + "Invalid page number");
+            return;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return;
         }
 
         sender.sendMessage((ChatColor.GREEN + "Total creepers placed: " + totalRows + " | Page " + page + " of " + totalPages));
