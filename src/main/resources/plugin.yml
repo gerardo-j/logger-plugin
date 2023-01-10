@@ -4,6 +4,7 @@ version: '${project.version}'
 main: dev.gerardoj.creeperlogger.Main
 api-version: 1.19
 description: A plugin that logs creeper spawn egg placement
+softdepend: [PlaceholderAPI] # This is used, if your plugin works without PlaceholderAPI.
 commands:
   creeperlog:
     description: CreeperLogger commands. Clear the logs or lookup a page of logs.
