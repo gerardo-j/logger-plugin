@@ -47,6 +47,7 @@ public class PlaceCreeperEgg implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 creepersLogDao.create(creepersLog);
+                plugin.getConfig().set("placeholders.total",(int) plugin.getConfig().get("placeholders.total", -1) + 1);
             } catch (Exception e) {
                 player.sendMessage(ChatColor.RED + "Error: " + e.getMessage());
                 e.printStackTrace();

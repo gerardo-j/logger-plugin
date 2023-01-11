@@ -6,6 +6,7 @@ import dev.gerardoj.creeperlogger.utils.CommandInfo;
 import dev.gerardoj.creeperlogger.utils.PluginCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -15,8 +16,10 @@ public class CreeperLogCommand extends PluginCommand {
 
     public static final long LIMIT = 10L;
     Dao<CreepersLog, String> creepsLogDao;
+    Plugin plugin;
 
-    public CreeperLogCommand(Dao<CreepersLog, String> creepsLogDao) {
+    public CreeperLogCommand(Plugin plugin, Dao<CreepersLog, String> creepsLogDao) {
+        this.plugin = plugin;
         this.creepsLogDao = creepsLogDao;
     }
 
@@ -34,6 +37,7 @@ public class CreeperLogCommand extends PluginCommand {
         if (arg.equals("clear")) {
             try {
                 creepsLogDao.deleteBuilder().delete();
+                plugin.getConfig().set("placeholders.total", 0);
                 sender.sendMessage(ChatColor.GREEN + "Cleared creeper info");
             } catch (SQLException e) {
                 e.printStackTrace();
